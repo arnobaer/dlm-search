@@ -1,0 +1,2 @@
+include dlmsearch/data/*.csv
+include dlmsearch/views/*.html
