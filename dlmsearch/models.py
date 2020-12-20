@@ -6,7 +6,7 @@ from .config import config
 db = Database()
 
 class Location(db.Entity):
-    type = Required(int)
+    category = Required(int)
     name = Required(str)
     var_name = Optional(str)
     lon = Required(float)

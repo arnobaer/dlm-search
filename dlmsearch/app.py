@@ -16,6 +16,17 @@ LIMIT = 1024
 
 load(os.path.join(DATA_DIR, 'default.csv'))
 
+def category(category):
+    return {
+        7100: "Settlement",
+        7200: "Region",
+        7300: "Mountain",
+        7400: "Glacier",
+        7500: "Water",
+        7600: "Other",
+        7700: "Field"
+    }.get(int(category / 100) * 100, "Unknown")
+
 @app.route('/')
 @db_session
 @jinja2_view('map.html')
@@ -29,4 +40,4 @@ def index():
             .filter(lambda l: needle in l.name.lower())\
             .order_by(lambda l: (len(l.name), l.name, len(l.name)))\
             .limit(LIMIT)
-    return {'q': q, 'locations': locations, 'title': "DLM Search"}
+    return {'q': q, 'category': category, 'locations': locations, 'title': "DLM Search"}

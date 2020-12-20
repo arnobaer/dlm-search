@@ -10,7 +10,7 @@
  <style>
   #map {
     width: 100%;
-    height: 600px;
+    height: 480px;
   }
  </style>
 {% endblock %}
@@ -23,7 +23,7 @@
   var bounds = new L.LatLngBounds([{% for location in locations %}[{{ location.lat }}, {{ location.lon }}],{% endfor %}]);
   var map = L.map('map', {
    scrollWheelZoom: false
- }).setView([47.333, 13.333], 8);
+ }).setView([47.333, 13.333], 7);
   if (bounds.length) map.fitBounds(bounds, {padding: [50, 50]});
   L.tileLayer('https://{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.png', {
    minZoom: 1,
@@ -46,20 +46,44 @@
 {% endblock %}
 
 {% block content %}
-  <h3>{{ title }}</h3>
-  <form>
-    <input type="text" name="q" value="{{ q }}">
-    <input type="submit" value="Search">
+  <div class="w3-container">
+    <h3>{{ title }}</h3>
+  </div>
+  <div class="w3-container w3-panel">
+    <form>
+      <input type="text" name="q" value="{{ q }}">
+      <input type="submit" value="Search">
 {% if locations %}
-    <span>Found {{ locations|count }} locations.</span>
+      <span>Found {{ locations|count }} locations.</span>
 {% elif q %}
-    <span>Nothing found.</span>
+      <span>Nothing found.</span>
 {% endif %}
-  </form>
-  <div id="map"></div>
-  <ul>
+    </form>
+  </div>
+  <div class="w3-container">
+    <div id="map"></div>
+  </div>
+  <div class="w3-container">
+    <table  class="w3-table">
+{% if locations %}
+      <tr>
+        <th>Name</th>
+        <th>Category</th>
+        <th>lat</th>
+        <th>lon</th>
+      </tr>
+{% endif %}
 {% for location in locations %}
-    <li>{{ location.name|escape }}{% if location.var_name %} ({{ location.var_name|escape }}){% endif %} {{ location.lon }} {{ location.lat }}</li>
+      <tr>
+        <td>{{ location.name|escape }}{% if location.var_name %} ({{ location.var_name|escape }}){% endif %}</td>
+        <td>{{ category(location.category) }}</td>
+        <td>{{ '%.3F' % location.lat }}</td>
+        <td>{{ '%.3F' % location.lon }}</td>
+      </tr>
 {% endfor %}
-  </ul>
+    </table>
+  </div>
+  <div class="w3-container">
+
+  </div>
 {% endblock %}
