@@ -1,14 +1,12 @@
 import os
 import csv
-import logging
+import argparse
 
 from .models import db, db_session
 
 @db_session
-def load(filename):
-    if db.Location.select().count():
-        return
-    logging.info("Importing data...")
+def import_csv(filename):
+    print("Importing data...")
     locations = []
     with open(filename) as f:
         reader = csv.reader(f)
@@ -27,4 +25,4 @@ def load(filename):
                 lon=lon,
                 lat=lat
             ))
-    logging.info("Importing data... done.")
+    print("Importing data... done.")

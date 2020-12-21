@@ -1,9 +1,18 @@
 # DLM Search
 
-Quick start
+## Setup
+
+Import default CSV data set.
+```bash
+python -m dlmsearch --import-csv data/default.csv
+```
+
+## Run
+
+Run using gunicorn WSGI server.
 
 ```bash
-gunicorn dlmsearch.wsgi
+gunicorn dlmsearch
 ```
 
 ## License
