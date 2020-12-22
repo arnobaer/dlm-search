@@ -59,8 +59,11 @@ def index():
             return needle in location.name.lower()
     def order_locations(location):
         return len(location.name), location.name, len(location.name)
-    locations = db.Location.select() \
+    if q:
+        locations = db.Location.select() \
         .filter(filter_locations) \
         .order_by(order_locations) \
         .limit(LOCATIONS_LIMIT)
+    else:
+        locations = []
     return {'q': q, 'category': category, 'locations': locations}
