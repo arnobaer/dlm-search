@@ -52,6 +52,12 @@
   <div class="w3-container w3-panel">
     <form>
       <input type="text" name="q" value="{{ q }}">
+      <select name="category">
+        <option value="">Any</option>
+{% for index, name in categories.items() %}
+        <option value="{{ index }}"{% if category == index %} selected{% endif%}>{{ name }}</option>
+{% endfor %}
+      <select>
       <input type="submit" value="Search">
 {% if locations %}
       <span>Found {{ locations|count }} locations.</span>
@@ -76,7 +82,7 @@
 {% for location in locations %}
       <tr>
         <td>{{ location.name|escape }}{% if location.var_name %} ({{ location.var_name|escape }}){% endif %}</td>
-        <td>{{ category(location.category) }}</td>
+        <td>{{ get_category(location.category) }}</td>
         <td>{{ '%.3F' % location.lat }}</td>
         <td>{{ '%.3F' % location.lon }}</td>
       </tr>

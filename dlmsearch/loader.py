@@ -1,6 +1,5 @@
 import os
 import csv
-import argparse
 
 from .models import db, db_session
 
@@ -11,7 +10,7 @@ def import_csv(filename):
     with open(filename) as f:
         reader = csv.reader(f)
         for row in reader:
-            category = int(row[0])
+            category = int(int(int(row[0]) / 100) * 100) # reduce
             name = row[1].strip()
             var_name = row[2].strip()
             lon = float(row[3])
