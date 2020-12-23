@@ -17,9 +17,6 @@ application = app
 # Update template path
 TEMPLATE_PATH[:] = [VIEWS_DIR]
 
-# Limit query results
-LOCATIONS_LIMIT = 1024
-
 # Location categories
 LOCATION_CATEGORIES = {
     7100: "Settlement",
@@ -43,27 +40,17 @@ Jinja2Template.defaults.update({
     'title': "DLM Search",
 })
 
+def to_number(value):
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
 @app.route('/')
 @db_session
 @jinja2_view('map.html')
 def index():
     q = request.query.q.strip()
-    category = request.query.category
-    category = int(category) if category.isdecimal() else 0
-    needle = q.lower()
-    if category:
-        def filter_locations(location):
-            return needle in location.name.lower() and category == location.category
-    else:
-        def filter_locations(location):
-            return needle in location.name.lower()
-    def order_locations(location):
-        return len(location.name), location.name, len(location.name)
-    if q:
-        locations = db.Location.select() \
-        .filter(filter_locations) \
-        .order_by(order_locations) \
-        .limit(LOCATIONS_LIMIT)
-    else:
-        locations = []
+    category = to_number(request.query.category)
+    locations = db.Location.filter_locations(needle=q.lower(), category=category)
     return {'q': q, 'category': category, 'locations': locations}
