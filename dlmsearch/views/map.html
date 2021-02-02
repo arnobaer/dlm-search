@@ -33,7 +33,7 @@
   <div class="w3-container">
     <div id="map"></div>
   </div>
-  <div class="w3-container">
+  <div class="w3-container w3-margin-top w3-margin-bottom">
     <table  class="w3-table">
 {% if locations %}
       <tr>
@@ -45,15 +45,13 @@
 {% endif %}
 {% for location in locations %}
       <tr>
-        <td>{{ location.name|escape }}{% if location.var_name %} ({{ location.var_name|escape }}){% endif %}</td>
+        <td><span class="fa fa-search zoom" data-lat="{{ '%.4f' % location.lat }}" data-lon="{{ '%.4f' % location.lon }}"></span> {{ location.name|escape }}{% if location.var_name %} ({{ location.var_name|escape }}){% endif %}</td>
         <td>{{ get_category(location.category) }}</td>
         <td>{{ '%.4f' % location.lat }}</td>
         <td>{{ '%.4f' % location.lon }}</td>
       </tr>
 {% endfor %}
     </table>
-  </div>
-  <div class="w3-container">
   </div>
 {% endblock %}
 
@@ -62,31 +60,107 @@
   <script>
     (function() {
       var bounds = new L.LatLngBounds([{% for location in locations %}[{{ location.lat }}, {{ location.lon }}],{% endfor %}]);
+
       var map = L.map('map', {
         scrollWheelZoom: false
         }).setView([47.333, 13.333], 7);
+
       if (bounds.length) {
         map.fitBounds(bounds, {padding: [50, 50]});
       }
-      L.tileLayer('https://{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.png', {
-        minZoom: 1,
-        maxZoom: 18,
-        attribution: '<a href="https://basemap.at" target="_blank">basemap.at</a>, <a href="https://creativecommons.org/licenses/by/3.0/at/deed.de" target="_blank">CC-BY 3.0</a> | <a href="https://bev.gv.at" target="_blank">bev.gv.at</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY 4.0</a>',
+
+      L.control.scale().addTo(map);
+
+      var basemapLayer = L.tileLayer('https://{s}.wien.gv.at/basemap/bmapgrau/normal/google3857/{z}/{y}/{x}.png', {
+        minZoom: 7,
+        maxZoom: 19,
+        attribution: '<a href="http://basemap.at" target="_blank">basemap.at</a>, <a href="http://creativecommons.org/licenses/by/3.0/at/deed.de" target="_blank">CC-BY 3.0</a>',
         tms: false,
         subdomains: ["maps", "maps1", "maps2", "maps3"],
-      }).addTo(map);
-      var markers = L.markerClusterGroup();
+      });
+      basemapLayer.addTo(map);
+
+      var orthoLayer = L.tileLayer('https://{s}.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.jpeg', {
+        minZoom: 7,
+        maxZoom: 19,
+        attribution: '<a href="http://basemap.at" target="_blank">basemap.at</a>, <a href="http://creativecommons.org/licenses/by/3.0/at/deed.de" target="_blank">CC-BY 3.0</a>',
+        tms: false,
+        subdomains: ["maps", "maps1", "maps2", "maps3"],
+      });
+
+      var demLayer = L.tileLayer('https://{s}.wien.gv.at/basemap/bmapgelaende/grau/google3857/{z}/{y}/{x}.jpeg', {
+        minZoom: 7,
+        maxZoom: 17,
+        attribution: '<a href="http://basemap.at" target="_blank">basemap.at</a>, <a href="http://creativecommons.org/licenses/by/3.0/at/deed.de" target="_blank">CC-BY 3.0</a>',
+        tms: false,
+        subdomains: ["maps", "maps1", "maps2", "maps3"],
+      });
+
+      var overlayLayer = L.tileLayer('https://{s}.wien.gv.at/basemap/bmapoverlay/normal/google3857/{z}/{y}/{x}.png', {
+        minZoom: 7,
+        maxZoom: 19,
+        attribution: '<a href="http://basemap.at" target="_blank">basemap.at</a>, <a href="http://creativecommons.org/licenses/by/3.0/at/deed.de" target="_blank">CC-BY 3.0</a>',
+        tms: false,
+        subdomains: ["maps", "maps1", "maps2", "maps3"],
+      });
+
+      var baseLayers = {
+        "Basemap": basemapLayer,
+        "Luftbild": orthoLayer,
+        "Gelände": demLayer,
+      };
+
+      var overlays = {
+        "Overlay": overlayLayer
+      };
+
+      L.control.layers(baseLayers, overlays).addTo(map);
+
+      var markers = L.markerClusterGroup({maxClusterRadius: 40});
+
 {% for location in locations %}
       L.marker([{{ location.lat }}, {{ location.lon }}]).bindPopup(
-        `<div>{{ location.name|escape }}{% if location.var_name %} ({{ location.var_name|escape }}){% endif %}</div>
-         <div>Category: {{ get_category(location.category) }}</div>
-         <div><span title="Latitude">{{ '%.4f' % location.lat }}</span>, <span title="Longitude">{{ '%.4f' % location.lon }}</span></div>`).on('mouseover', function (e) {
+         '<div><span class="name">{{ location.name|escape }}</span>{% if location.var_name %} (<span class="var_name">{{ location.var_name|escape }}</span>){% endif %}</div>' +
+         '<div>Category: <span class="category">{{ get_category(location.category) }}</span></div>' +
+         '<div><span class="lat" title="Latitude">{{ '%.4f' % location.lat }}</span>, <span class="lon" title="Longitude">{{ '%.4f' % location.lon }}</span></div>').on('mouseover', function (e) {
         this.openPopup();
       }).on('mouseout', function (e) {
         this.closePopup();
       }).on('click', function (e) {}).addTo(markers);
 {% endfor %}
       map.addLayer(markers);
+
+      // Workaround for auto-overlay
+      (function() {
+        var radios = document.querySelectorAll('.leaflet-control-layers-selector[type=radio]');
+        var checkbox = document.querySelector('.leaflet-control-layers-selector[type=checkbox]');
+        // Disable overlay for basemap layer
+        radios[0].addEventListener('click', function(e) {
+          checkbox.checked = true;
+          checkbox.click();
+        });
+        // Enable overlay for ortho layer
+        radios[1].addEventListener('click', function(e) {
+          checkbox.checked = false;
+          checkbox.click();
+        });
+        // Enable overlay for elevation layer
+        radios[2].addEventListener('click', function(e) {
+          checkbox.checked = false;
+          checkbox.click();
+        });
+      })();
+
+      // Zoom on click handler
+      (function() {
+        var elements = document.querySelectorAll('.zoom');
+        for (var i = 0; i < elements.length; i++) {
+          elements[i].addEventListener('click', function(e) {
+            map.setView([this.dataset.lat, this.dataset.lon], 16);
+          });
+        }
+      })();
+
     })();
   </script>
 {% endblock %}

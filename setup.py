@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='dlm-search',
-    version='1.0.0',
+    version='1.1.0',
     author="Bernhard Arnold",
     packages=find_packages(exclude=['tests']),
     install_requires=[

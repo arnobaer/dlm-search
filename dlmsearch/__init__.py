@@ -8,6 +8,8 @@ from bottle import TEMPLATE_PATH
 from .config import VIEWS_DIR, config
 from .models import db, db_session
 
+__version__ = '1.1.0'
+
 app = Bottle(__name__)
 app.config.update(config)
 
@@ -53,4 +55,4 @@ def index():
     q = request.query.q.strip()
     category = to_number(request.query.category)
     locations = db.Location.filter_locations(needle=q.lower(), category=category)
-    return {'q': q, 'category': category, 'locations': locations}
+    return {'q': q, 'category': category, 'locations': locations, 'version': __version__}
