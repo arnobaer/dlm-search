@@ -1,11 +1,13 @@
-import os
 import csv
+import logging
+import os
 
 from .models import db, db_session
 
+
 @db_session
 def import_csv(filename):
-    print("Importing data...")
+    logging.info("Importing data...")
     locations = []
     with open(filename) as f:
         reader = csv.reader(f)
@@ -24,4 +26,4 @@ def import_csv(filename):
                 lon=lon,
                 lat=lat
             ))
-    print("Importing data... done.")
+    logging.info("Importing data... done.")

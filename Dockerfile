@@ -1,11 +1,9 @@
-FROM python:3.8
+FROM python:3.9-alpine
 ENV PYTHONUNBUFFERED 1
-RUN mkdir /code
 WORKDIR /code
-COPY requirements.txt /code/
+COPY . /code
 RUN pip install -U pip
-RUN pip install -r requirements.txt
-COPY . /code/
+RUN pip install -e .
 # Import default data set
 RUN python -m dlmsearch --import-csv ./data/default.csv
-ENTRYPOINT gunicorn dlmsearch.app:app --bind='0.0.0.0:8000'
+ENTRYPOINT gunicorn dlmsearch --bind='0.0.0.0:8000'

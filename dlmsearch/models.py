@@ -5,6 +5,7 @@ from .config import config
 
 db = Database()
 
+
 class Location(db.Entity):
     category = Required(int)
     name = Required(str)
@@ -25,5 +26,6 @@ class Location(db.Entity):
             .order_by(order_by_locations) \
             .limit(limit)
 
-db.bind(**config['PONY'])
+
+db.bind(**config["PONY"])
 db.generate_mapping(create_tables=True)

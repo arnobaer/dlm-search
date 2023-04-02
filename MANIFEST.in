@@ -1,2 +1,8 @@
+include LICENSE
+include README.md
+include .gitignore
+include Dockerfile
+include docker-compose.yml
+
 include dlmsearch/data/*.csv
 include dlmsearch/views/*.html
