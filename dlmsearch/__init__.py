@@ -9,7 +9,7 @@ from bottle import TEMPLATE_PATH
 from .config import VIEWS_DIR, config
 from .models import db, db_session
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 
 app = Bottle(__name__)
 app.config.update(config)
